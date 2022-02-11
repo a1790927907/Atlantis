@@ -23,17 +23,21 @@ class UserTokenInfo(BaseModel):
     account: str = Field(..., description="用户账号")
 
 
-class User(BaseModel):
-    userId: str = Field(default_factory=get_uuid, description="user id")
+class UserInfoWriteAccess(BaseModel):
     nickName: str = Field(..., description="用户昵称")
-    account: str = Field(..., description="用户账号")
     password: str = Field(..., description="用户密码")
     phone: str = Field(..., description="用户手机号")
     email: str = Field(..., description="用户邮箱")
     sign: Optional[str] = Field(default=None, description="用户个人签名")
     address: Optional[str] = Field(default=None, description="用户地址")
+
+
+class User(UserInfoWriteAccess):
+    userId: str = Field(default_factory=get_uuid, description="user id")
+    account: str = Field(..., description="用户账号")
     isDelete: bool = Field(default=False, description="是否删除")
     updateTime: datetime = Field(default_factory=get_now_factory, description="更新时间")
+    lastLoginTime: datetime = Field(default_factory=get_now_factory, description="上次登陆时间")
 
     @validator("phone")
     def validate_phone_number(cls, v):
@@ -66,6 +70,9 @@ class User(BaseModel):
         except Exception as _e:
             raise UserServerException("token is not valid, no authorization", error_code=403)
 
+    def update_last_login_time(self):
+        self.lastLoginTime = get_now_factory()
+
 
 class UserRegisterRequestModel(BaseModel):
     nickName: str = Field(..., description="用户昵称")
@@ -88,12 +95,36 @@ class UserLoginRequestModel(BaseModel):
     password: str = Field(..., description="用户密码")
 
 
+class UserUpdateRequestModel(BaseModel):
+    user: UserInfoWriteAccess = Field(..., description="user信息")
+
+
 class BaseResponseModel(BaseModel):
     message: str = Field(..., description="回馈信息")
 
 
 class UserRegisterResponseModel(BaseResponseModel):
-    userId: str = Field(..., description="user id")
+    userId: Optional[str] = Field(..., description="user id")
+
+
+class UserLoginResponseModel(BaseResponseModel):
+    status: int = Field(..., description="登陆失败为0, 成功为1")
+
+
+class UserInfoResponseModel(BaseResponseModel):
+    user: Optional[User] = Field(..., description="user信息")
+
+
+class UserUpdateResponseModel(BaseResponseModel):
+    userId: Optional[str] = Field(..., description="user id")
+
+
+class UserLogOutResponseModel(BaseResponseModel):
+    userId: Optional[str] = Field(..., description="user id")
+
+
+class UserAuthorizationResponseModel(BaseModel):
+    userId: Optional[str] = Field(..., description="user id")
 
 
 if __name__ == '__main__':

@@ -30,6 +30,7 @@ class TableUser(Base):
     isDelete = sqlalchemy.Column(sqlalchemy.Boolean, nullable=False, server_default=sqlalchemy.text(True))
     createTime = sqlalchemy.Column(sqlalchemy.DateTime, nullable=False, server_default=func.now())
     updateTime = sqlalchemy.Column(sqlalchemy.DateTime, nullable=False)
+    lastLoginTime = sqlalchemy.Column(sqlalchemy.DateTime, nullable=False)
 
 
 user_table: Table = TableUser.__table__
