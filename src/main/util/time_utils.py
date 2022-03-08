@@ -18,3 +18,7 @@ def get_now(
 
 def get_now_factory():
     return get_now(return_type="datetime")
+
+
+if __name__ == '__main__':
+    print(get_now(timezone=pytz.timezone("Asia/Shanghai"), return_type="timestamp"))

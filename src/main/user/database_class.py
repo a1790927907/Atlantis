@@ -1,19 +1,15 @@
-import databases
-
 from src.main.user.model import User
+from typing import Callable, Optional
 from src.main.util.logger import logger
 from src.main.user.database_model import user_table
 from sqlalchemy.dialects.postgresql.dml import Insert
 from src.main.user.exception import UserServerException
-from sqlalchemy_utils import create_database, database_exists
+from src.main.basicApplication.database.application import BaseDataBase
 
 
-class DataBase:
-    def __init__(self, database_url: str):
-        if not database_exists(database_url):
-            create_database(database_url)
-            logger.info("success create database: {}".format(database_url))
-        self.db = databases.Database(database_url)
+class DataBase(BaseDataBase):
+    def __init__(self, database_url: str, init_func: Callable, params: Optional[dict] = None):
+        super().__init__(database_url, init_func, params)
         self.user_table = user_table
 
     async def connect(self):

@@ -18,16 +18,18 @@ engine = sqlalchemy.create_engine(DATABASE_URL)
 
 
 class TableUser(Base):
-    __tablename__ = 'blogUser'
+    __tablename__ = 'User'
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     userId = sqlalchemy.Column(sqlalchemy.String(600), unique=True, nullable=False)
     nickName = sqlalchemy.Column(sqlalchemy.String(1000), nullable=False)
     account = sqlalchemy.Column(sqlalchemy.String(1000), nullable=False, unique=True)
     password = sqlalchemy.Column(sqlalchemy.String(600), index=True, nullable=False)
+    phone = sqlalchemy.Column(sqlalchemy.String(600), index=True, nullable=False)
+    email = sqlalchemy.Column(sqlalchemy.String(600), index=True, nullable=False)
     sign = sqlalchemy.Column(sqlalchemy.TEXT, nullable=True)
     address = sqlalchemy.Column(sqlalchemy.String(1000), nullable=True)
     extra = sqlalchemy.Column(JSONB, nullable=True)
-    isDelete = sqlalchemy.Column(sqlalchemy.Boolean, nullable=False, server_default=sqlalchemy.text(True))
+    isDelete = sqlalchemy.Column(sqlalchemy.Boolean, nullable=False, server_default="0")
     createTime = sqlalchemy.Column(sqlalchemy.DateTime, nullable=False, server_default=func.now())
     updateTime = sqlalchemy.Column(sqlalchemy.DateTime, nullable=False)
     lastLoginTime = sqlalchemy.Column(sqlalchemy.DateTime, nullable=False)

@@ -67,6 +67,8 @@ class User(UserInfoWriteAccess):
     def decode_token(cls, token: str) -> UserTokenInfo:
         try:
             return UserTokenInfo(**jwt.decode(token, DEFAULT_JWT_SECRET, algorithms=["HS256"]))
+        except jwt.exceptions.ExpiredSignatureError as _e:
+            raise UserServerException("token过期", error_code=403)
         except Exception as _e:
             raise UserServerException("token is not valid, no authorization", error_code=403)
 
@@ -83,10 +85,10 @@ class UserRegisterRequestModel(BaseModel):
     email: str = Field(..., description="用户邮箱")
     address: Optional[str] = Field(default=None, description="用户地址")
 
-    @validator("password")
-    def validate_password_repeated_effectiveness(cls, v, values, **_kwargs):
-        if "passwordRepeated" in values and values["passwordRepeated"] == v:
-            return v
+    @validator("passwordRepeated")
+    def validate_password_repeated_effectiveness(cls, value, values, **kwargs):
+        if "password" in values and values["password"] == value:
+            return value
         raise UserServerException("Inconsistent passwords!")
 
 
@@ -95,8 +97,18 @@ class UserLoginRequestModel(BaseModel):
     password: str = Field(..., description="用户密码")
 
 
+class UserUpdatedInfo(UserInfoWriteAccess):
+    nickName: Optional[str] = Field(default=None, description="用户昵称")
+    password: Optional[str] = Field(default=None, description="用户密码")
+    lastPassword: Optional[str] = Field(default=None, description="旧密码")
+    phone: Optional[str] = Field(default=None, description="用户手机号")
+    email: Optional[str] = Field(default=None, description="用户邮箱")
+    sign: Optional[str] = Field(default=None, description="用户个人签名")
+    address: Optional[str] = Field(default=None, description="用户地址")
+
+
 class UserUpdateRequestModel(BaseModel):
-    user: UserInfoWriteAccess = Field(..., description="user信息")
+    user: UserUpdatedInfo = Field(..., description="user信息")
 
 
 class BaseResponseModel(BaseModel):
@@ -105,14 +117,28 @@ class BaseResponseModel(BaseModel):
 
 class UserRegisterResponseModel(BaseResponseModel):
     userId: Optional[str] = Field(..., description="user id")
+    accessToken: Optional[str] = Field(..., description="注册成功后的token")
 
 
 class UserLoginResponseModel(BaseResponseModel):
     status: int = Field(..., description="登陆失败为0, 成功为1")
+    accessToken: Optional[str] = Field(..., description="登录成功后的token")
+
+
+class UserInfoShow(BaseModel):
+    userId: str = Field(default_factory=get_uuid, description="user id")
+    account: str = Field(..., description="用户账号")
+    updateTime: str = Field(..., description="更新时间")
+    lastLoginTime: str = Field(..., description="上次登陆时间")
+    nickName: str = Field(..., description="用户昵称")
+    phone: str = Field(..., description="用户手机号")
+    email: str = Field(..., description="用户邮箱")
+    sign: Optional[str] = Field(default=None, description="用户个人签名")
+    address: Optional[str] = Field(default=None, description="用户地址")
 
 
 class UserInfoResponseModel(BaseResponseModel):
-    user: Optional[User] = Field(..., description="user信息")
+    user: Optional[UserInfoShow] = Field(..., description="user信息")
 
 
 class UserUpdateResponseModel(BaseResponseModel):

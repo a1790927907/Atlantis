@@ -11,3 +11,6 @@ pg_database = os.getenv('POSTGRES_DB', 'user')
 DEFAULT_TOKEN_EXPIRE_TIME = int(os.getenv("DEFAULT_TOKEN_EXPIRE_TIME", "7"))
 DEFAULT_JWT_SECRET = os.getenv("DEFAULT_JWT_SECRET", "zyh123456")
 DATABASE_URL = f"postgresql://{pg_user}:{pg_password}@{pg_host}:{pg_port}/{pg_database}"
+
+ANTI_CRAWLER_API = os.getenv("ANTI_CRAWLER_API", "http://localhost:8080")
+ANTI_CRAWLER_VALIDATE_URL = ANTI_CRAWLER_API + "/anti-crawler/validate"
