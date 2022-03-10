@@ -11,12 +11,12 @@ app = FastAPI(docs_url="/parse/docs", redoc_url="/parse/re_doc")
 parser_app = Application(Settings)
 
 
-@app.post("/api/parse", response_model=ParseResponse, description="解析 v1")
+@app.post("/api/parse", response_model=ParseResponse, description="小说或其章节 解析 v1")
 async def parse(
         response: Response,
         novel: Optional[UploadFile] = File(..., description="数据文本"),
         url: str = Query(default=..., description="来源"),
-        parse_cover: bool = Query(default=False, title="是否尝试解析封面")
+        parse_cover: bool = Query(default=False, title="是否尝试解析封面", example=False)
 ):
     try:
         text = await novel.read()
@@ -35,7 +35,7 @@ async def parse(
         else:
             message = repr(e)
         return {
-            "meta": parser_app.get_meta(parse_request.url),
+            "meta": parser_app.get_meta(url),
             "message": message
         }
 

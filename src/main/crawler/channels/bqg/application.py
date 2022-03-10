@@ -23,7 +23,7 @@ class Application:
                 'xuanhuanxiaoshuo', 'xiuzhenxiaoshuo', 'dushixiaoshuo',
                 'chuanyuexiaoshuo', 'wangyouxiaoshuo', 'kehuanxiaoshuo'
             ]
-        self.channel = "xbiquge"
+        self.channel = "xbiquge.la"
         self.channel_cn = "笔趣阁"
         self.host = os.getenv("HOST", "https://www.xbiquge.la")
         self.base_home_page_url = os.getenv("BASE_HOME_PAGE_URL", "https://www.xbiquge.la/")

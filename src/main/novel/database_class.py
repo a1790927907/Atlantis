@@ -1,10 +1,10 @@
 from sqlalchemy import select
 from src.main.util.logger import logger
 from typing import Callable, Optional, List
-from src.main.novel.model import Novel, NovelChapter
 from sqlalchemy.dialects.postgresql.dml import Insert
+from src.main.novel.model import Novel, NovelChapter, NovelTypeDBModel
 from src.main.basicApplication.database.application import BaseDataBase
-from src.main.novel.database_model import novel_table, novel_chapter_table, novel_relation_table
+from src.main.novel.database_model import novel_table, novel_chapter_table, novel_relation_table, novel_type_table
 
 
 class DataBase(BaseDataBase):
@@ -13,6 +13,7 @@ class DataBase(BaseDataBase):
         self.novel_table = novel_table
         self.novel_chapter_table = novel_chapter_table
         self.novel_relation_table = novel_relation_table
+        self.novel_type_table = novel_type_table
 
     async def upsert_novel(self, novel: Novel):
         db = await self.get_db()
@@ -24,6 +25,13 @@ class DataBase(BaseDataBase):
         )
         await db.execute(insert_sql)
         logger.info("success upsert novel, uid: {}, name: {]".format(novel.uniqueId, novel.name))
+
+    async def upsert_novel_type(self, novel_type_for_db: NovelTypeDBModel):
+        db = await self.get_db()
+        data = novel_type_for_db.dict()
+        insert_sql: Insert = Insert(self.novel_type_table, inline=True).values(data)
+        await db.execute(insert_sql)
+        logger.info("success upsert novel type, novel type info: {}".format(data))
 
     async def upsert_novel_chapter(self, novel_chapter: NovelChapter):
         db = await self.get_db()
@@ -42,6 +50,11 @@ class DataBase(BaseDataBase):
         db = await self.get_db()
         query = self.novel_table.select().filter_by(uniqueId=uid)
         return await db.fetch_one(query)
+
+    async def get_novel_type(self, novel_id: str) -> list:
+        db = await self.get_db()
+        query = self.novel_type_table.select().filter_by(novelId=novel_id)
+        return await db.fetch_all(query)
 
     async def get_novel_chapter(self, uid: str):
         db = await self.get_db()
